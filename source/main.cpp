@@ -5,99 +5,16 @@
 using namespace std;
 
 // Dimensions of the maze
-int width=8, height=8;
+float width=8, height=8;
 
 GLMatrices Matrices;
 GLuint     programID;
 GLFWwindow *window;
 
-/**************************
-* Customizable functions *
-**************************/
+float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
+double camera_rotation_angle = 30;
 
 Ball ball1;
-
-float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
-float camera_rotation_angle = 0;
-
-Timer t60(1.0 / 60);
-
-/* Render the scene with openGL */
-/* Edit this function according to your assignment */
-void draw() {
-    // clear the color and depth in the frame buffer
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // use the loaded shader program
-    // Don't change unless you know what you are doing
-    glUseProgram (programID);
-
-    // Eye - Location of camera. Don't change unless you are sure!!
-    glm::vec3 eye ( 5*cos(camera_rotation_angle*M_PI/180.0f), 0, 5*sin(camera_rotation_angle*M_PI/180.0f) );
-    // Target - Where is the camera looking at.  Don't change unless you are sure!!
-    glm::vec3 target (0, 0, 0);
-    // Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
-    glm::vec3 up (0, 1, 0);
-
-    // Compute Camera matrix (view)
-    Matrices.view = glm::lookAt( eye, target, up ); // Rotating Camera for 3D
-    // Don't change unless you are sure!!
-    // Matrices.view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)); // Fixed camera for 2D (ortho) in XY plane
-
-    // Compute ViewProject matrix as view/camera might not be changed for this frame (basic scenario)
-    // Don't change unless you are sure!!
-    glm::mat4 VP = Matrices.projection * Matrices.view;
-
-    // Send our transformation to the currently bound shader, in the "MVP" uniform
-    // For each model you render, since the MVP will be different (at least the M part)
-    // Don't change unless you are sure!!
-    glm::mat4 MVP;  // MVP = Projection * View * Model
-
-    // Scene render
-    ball1.draw(VP);
-}
-
-void tick_input(GLFWwindow *window) {
-    int left  = glfwGetKey(window, GLFW_KEY_LEFT);
-    int right = glfwGetKey(window, GLFW_KEY_RIGHT);
-    if (left) {
-        // Do something
-    }
-}
-
-void tick_elements() {
-    ball1.tick();
-    camera_rotation_angle += 1;
-}
-
-/* Initialize the OpenGL rendering properties */
-/* Add all the models to be created here */
-void initGL(GLFWwindow *window, int width, int height) {
-    /* Objects should be created before any other gl function and shaders */
-    // Create the models
-
-    ball1       = Ball(0, 0, COLOR_RED);
-
-    // Create and compile our GLSL program from the shaders
-    programID = LoadShaders("../source/shaders/shader.vert", "../source/shaders/shader.frag");
-    // Get a handle for our "MVP" uniform
-    Matrices.MatrixID = glGetUniformLocation(programID, "MVP");
-
-
-    reshapeWindow (window, width, height);
-
-    // Background color of the scene
-    glClearColor (COLOR_BACKGROUND.r / 256.0, COLOR_BACKGROUND.g / 256.0, COLOR_BACKGROUND.b / 256.0, 0.0f); // R, G, B, A
-    glClearDepth (1.0f);
-
-    glEnable (GL_DEPTH_TEST);
-    glDepthFunc (GL_LEQUAL);
-
-    cout << "VENDOR: " << glGetString(GL_VENDOR) << endl;
-    cout << "RENDERER: " << glGetString(GL_RENDERER) << endl;
-    cout << "VERSION: " << glGetString(GL_VERSION) << endl;
-    cout << "GLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
-}
 
 void initial_maze()
 {
@@ -132,7 +49,6 @@ GLuint LoadTexture( const char * filename )
   width = 1441;
   height = 980;
   data = (unsigned char *)malloc( width * height * 3 );
-  //int size = fseek(file,);
   fread( data, width * height * 3, 1, file );
   fclose( file );
 
@@ -189,7 +105,43 @@ void display ()
     glEnd();
     glDisable(GL_TEXTURE_2D);
     
+    ball1.draw(ball1.curr_x,ball1.curr_y);
+    // ball1.draw(12,12);
+
     initial_maze();
+}
+
+void key (unsigned char key, int x, int y)
+{
+    switch (key) {
+        case 'q':
+            exit(0);
+            break;
+    }
+}
+
+void movement (int key, int x, int y )
+{
+    switch (key) {
+        case GLUT_KEY_RIGHT:
+            if (ball1.curr_x+10 < 12+10*width)
+            ball1.curr_x+=10;
+            break;
+        case GLUT_KEY_LEFT:
+            if (ball1.curr_x-10 >= 12)
+            ball1.curr_x-=10;
+            break;
+        case GLUT_KEY_UP:
+            if (ball1.curr_y+10 < 12+10*height)
+            ball1.curr_y+=10;
+            break;
+        case GLUT_KEY_DOWN:
+            if (ball1.curr_y-10 >= 12)
+            ball1.curr_y-=10;
+            break;
+    }
+
+    display();
 }
 
 void init ()
@@ -217,13 +169,9 @@ int main(int argc, char **argv) {
     init();
 
     glutDisplayFunc(display);   // glutDisplayFunc whenever your window must be redrawn
-
+    glutKeyboardFunc(key);
+    glutSpecialFunc(movement);
     glutMainLoop(); // glutMainLoop calls your glutDisplayFunc callback over and over
-}
-
-bool detect_collision(bounding_box_t a, bounding_box_t b) {
-    return (abs(a.x - b.x) * 2 < (a.width + b.width)) &&
-           (abs(a.y - b.y) * 2 < (a.height + b.height));
 }
 
 void reset_screen() {

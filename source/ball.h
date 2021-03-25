@@ -6,14 +6,17 @@
 
 class Ball {
 public:
-    Ball() {}
-    Ball(float x, float y, color_t color);
-    glm::vec3 position;
-    float rotation;
-    void draw(glm::mat4 VP);
-    void set_position(float x, float y);
-    void tick();
-    double speed;
+    int curr_x;
+    int curr_y;
+
+    // constructor
+    Ball() {
+        curr_x = 12;
+        curr_y = 12;
+    }
+    void draw(float x, float y);
+    void drawRectangle(float x, float y, float width, float height);
+    void drawSemiCircle(float cx, float cy, float r, int num_segments);
 private:
     VAO *object;
 };
