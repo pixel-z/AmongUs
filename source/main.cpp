@@ -4,6 +4,9 @@
 
 using namespace std;
 
+// Dimensions of the maze
+int width=8, height=8;
+
 GLMatrices Matrices;
 GLuint     programID;
 GLFWwindow *window;
@@ -96,36 +99,62 @@ void initGL(GLFWwindow *window, int width, int height) {
     cout << "GLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 }
 
+void initial_maze()
+{
+    double x;
+    glLoadIdentity();
+    glBegin( GL_LINES );
+    
+    for( x = 1 ; x < width+2 ; x++ ){
+        glColor3f( 0.0, 0.0, 1.0 );
+        glVertex2f( x*10, 10.0 );
+        glVertex2f( x*10, height*10+10.0 );
+    }
+    for( x = 1 ; x < height+2; x++ ){
+        glVertex2f( 10.0 , x*10 );
+        glVertex2f( width*10+10.0 , x*10 );
+    }
+
+    glEnd();
+    glFlush();
+}
+
+void display ()
+{
+    glClearColor( 1, 1, 1, 0.0 );
+    glClear( GL_COLOR_BUFFER_BIT );
+    glColor3f( 0.0, 1.0, 1.0 );
+
+    initial_maze();
+}
+
+void init ()
+{
+    glMatrixMode (GL_PROJECTION);
+    glLoadIdentity ();
+    
+    gluOrtho2D( 0, 100, 0, 100 );
+    glMatrixMode (GL_MODELVIEW);
+    glLoadIdentity();
+}
 
 int main(int argc, char **argv) {
     srand(time(0));
-    int width  = 600;
-    int height = 600;
 
-    window = initGLFW(width, height);
+    cout<<"Width of grid: "<< width<<"\n";
+    cout<<"Height of grid: "<< height<<"\n";
 
-    initGL (window, width, height);
+    glutInit( &argc, argv );
+    glutInitDisplayMode( GLUT_SINGLE | GLUT_RGB );
+    glutInitWindowSize ( 700, 700 );
+    glutInitWindowPosition(100,100);
+    glutCreateWindow("Among Us");
 
-    /* Draw in loop */
-    while (!glfwWindowShouldClose(window)) {
-        // Process timers
+    init();
 
-        if (t60.processTick()) {
-            // 60 fps
-            // OpenGL Draw commands
-            draw();
-            // Swap Frame Buffer in double buffering
-            glfwSwapBuffers(window);
+    glutDisplayFunc(display);   // glutDisplayFunc whenever your window must be redrawn
 
-            tick_elements();
-            tick_input(window);
-        }
-
-        // Poll for Keyboard and mouse events
-        glfwPollEvents();
-    }
-
-    quit(window);
+    glutMainLoop(); // glutMainLoop calls your glutDisplayFunc callback over and over
 }
 
 bool detect_collision(bounding_box_t a, bounding_box_t b) {

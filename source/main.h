@@ -14,6 +14,10 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <GL/gl.h>
+#include <GL/glut.h>
+#include <GL/freeglut.h>
+
 struct color_t {
     int r;
     int g;
