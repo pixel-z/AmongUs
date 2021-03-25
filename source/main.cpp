@@ -119,12 +119,76 @@ void initial_maze()
     glFlush();
 }
 
+GLuint LoadTexture( const char * filename )
+{
+  GLuint texture;
+  int width, height;
+  unsigned char * data;
+
+  FILE * file;
+  file = fopen( filename, "rb" );
+
+  if ( file == NULL ) return 0;
+  width = 1441;
+  height = 980;
+  data = (unsigned char *)malloc( width * height * 3 );
+  //int size = fseek(file,);
+  fread( data, width * height * 3, 1, file );
+  fclose( file );
+
+  for(int i = 0; i < width * height ; ++i)
+  {
+    int index = i*3;
+    unsigned char B,R;
+    B = data[index];
+    R = data[index+2];
+
+    data[index] = R;
+    data[index+2] = B;
+  }
+
+  glGenTextures( 1, &texture );
+  glBindTexture( GL_TEXTURE_2D, texture );
+  glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,GL_MODULATE );
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST );
+
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR );
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT );
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_REPEAT );
+  gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height,GL_RGB, GL_UNSIGNED_BYTE, data );
+  free( data );
+
+  return texture;
+}
+
 void display ()
 {
     glClearColor( 1, 1, 1, 0.0 );
     glClear( GL_COLOR_BUFFER_BIT );
     glColor3f( 0.0, 1.0, 1.0 );
 
+    GLuint texture;
+    texture = LoadTexture( "../source/textures/back2.bmp" );
+
+    // int view_Left = 10, view_Right = 90, view_Bottom = 10, view_Up = 90;
+    int view_Left = 0, view_Right = 100, view_Bottom = 0, view_Up = 100;
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0, 0);
+    glVertex2f(view_Left, view_Bottom);
+
+    glTexCoord2f(1, 0);
+    glVertex2f(view_Right, view_Bottom);
+
+    glTexCoord2f(1, 1);
+    glVertex2f(view_Right, view_Up);
+
+    glTexCoord2f(0, 1);
+    glVertex2d(view_Left, view_Up);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    
     initial_maze();
 }
 
