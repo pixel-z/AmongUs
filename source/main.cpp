@@ -187,6 +187,14 @@ void dfs(int x,int y)
     return;
 }
 
+void HUD()
+{
+    glColor4f(1.0f, 0.0f, 0.0f, 0.0f);  //RGBA values of text color
+    glRasterPos2i(10, 95);            //Top left corner of text
+    const unsigned char* t = reinterpret_cast<const unsigned char *>("Tasks: "); // Since 2nd argument of glutBitmapString must be const unsigned char*
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18,t);
+}
+
 void display ()
 {
     glClearColor( 1, 1, 1, 0.0 );
@@ -197,7 +205,7 @@ void display ()
     texture = LoadTexture( "../source/textures/back2.bmp" );
 
     // int view_Left = 10, view_Right = 90, view_Bottom = 10, view_Up = 90;
-    int view_Left = 0, view_Right = 100, view_Bottom = 0, view_Up = 100;
+    int view_Left = 0, view_Right = 100, view_Bottom = 0, view_Up = 110;
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture);
     glBegin(GL_QUADS);
@@ -215,6 +223,8 @@ void display ()
     glEnd();
     glDisable(GL_TEXTURE_2D);
     
+    HUD();
+
     ball1.draw(ball1.curr_x,ball1.curr_y);
     // ball1.draw(12,12);
 
@@ -239,6 +249,7 @@ void key (unsigned char key, int x, int y)
 
 void movement (int key, int x, int y )
 {
+    if (startGame == 0) return;
     switch (key) {
         case GLUT_KEY_RIGHT:
             if (ball1.curr_x+10 < 12+10*width)
@@ -274,7 +285,7 @@ void init ()
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
     
-    gluOrtho2D( 0, 100, 0, 100 );
+    gluOrtho2D( 0, 100, 0, 110 );
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity();
 }
