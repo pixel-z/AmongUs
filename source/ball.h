@@ -23,6 +23,11 @@ class Button {
     public:
         int curr_x;
         int curr_y;
+        int finish;
+
+        Button() {
+            finish = 0;
+        }
     
         void draw(float r);
 };

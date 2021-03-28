@@ -18,7 +18,7 @@ const int width=8, height=8;
 int startGame = 0;
 Ball ball1;
 Grid grid[height][width];
-Button task1;
+Button task2;
 
 void removeLine(int x, int y, int direction){
     // cout<<x<<" "<<y<<" "<<direction<<endl;
@@ -190,10 +190,21 @@ void dfs(int x,int y)
 
 void HUD()
 {
-    glColor4f(1.0f, 0.0f, 0.0f, 0.0f);  //RGBA values of text color
+    if (task2.finish == 0) glColor4f(1.0f, 0.0f, 0.0f, 0.0f);  //RGBA values of text color
+    else glColor4f(0.0f, 1.0f, 0.0f, 0.0f);  //RGBA values of text color
+    
     glRasterPos2i(10, 95);            //Top left corner of text
-    const unsigned char* t = reinterpret_cast<const unsigned char *>("Tasks: "); // Since 2nd argument of glutBitmapString must be const unsigned char*
+    const unsigned char* t = reinterpret_cast<const unsigned char *>("Task 2"); // Since 2nd argument of glutBitmapString must be const unsigned char*
     glutBitmapString(GLUT_BITMAP_HELVETICA_18,t);
+}
+
+void collision()
+{
+    // cout<<ball1.curr_x<<" "<<task2.curr_x<<"\n";
+    if (ball1.curr_x+3 == task2.curr_x && ball1.curr_y+3 == task2.curr_y)
+    {
+        task2.finish = 1;
+    }
 }
 
 void display ()
@@ -226,15 +237,25 @@ void display ()
     
     HUD();
 
+    collision();
+
     ball1.draw(ball1.curr_x,ball1.curr_y);
     // ball1.draw(12,12);
 
     draw_grid();
+    if (startGame == 0)
+    {
+        glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
+        glRasterPos2i(40, 47);            //Top left corner of text
+        const unsigned char* t = reinterpret_cast<const unsigned char *>("Press enter to start");
+        glutBitmapString(GLUT_BITMAP_HELVETICA_18,t);
+    }
+    
 
     if (startGame==1) 
     {
         draw_maze();
-        task1.draw(2);
+        if(task2.finish == 0) task2.draw(2);
     }
     glFlush();
 }
@@ -309,8 +330,8 @@ int main(int argc, char **argv) {
     cout<<"Height of grid: "<< height<<"\n";
 
     choose_start();
-    task1.curr_x = (rand() % 8)*10+15;
-    task1.curr_y = (rand() % 8)*10+15;
+    task2.curr_x = (rand() % 8)*10+15;
+    task2.curr_y = (rand() % 8)*10+15;
     ball1.curr_x = (rand() % 8)*10+12;
     ball1.curr_y = (rand() % 8)*10+12;
 
