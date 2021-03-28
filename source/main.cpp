@@ -249,23 +249,30 @@ void key (unsigned char key, int x, int y)
 
 void movement (int key, int x, int y )
 {
+    int gridX = (ball1.curr_x-12)/10;
+    int gridY = (ball1.curr_y-12)/10;
+    // cout<<gridX<<" "<<gridY<<endl;
     if (startGame == 0) return;
     switch (key) {
         case GLUT_KEY_RIGHT:
-            if (ball1.curr_x+10 < 12+10*width)
-            ball1.curr_x+=10;
+            // if (ball1.curr_x+10 < 12+10*width)
+            if (grid[gridY][gridX].path[RIGHT] == true)
+                ball1.curr_x+=10;
             break;
         case GLUT_KEY_LEFT:
-            if (ball1.curr_x-10 >= 12)
-            ball1.curr_x-=10;
+            // if (ball1.curr_x-10 >= 12)
+            if (grid[gridY][gridX].path[LEFT] == true)
+                ball1.curr_x-=10;
             break;
         case GLUT_KEY_UP:
-            if (ball1.curr_y+10 < 12+10*height)
-            ball1.curr_y+=10;
+            // if (ball1.curr_y+10 < 12+10*height)
+            if (grid[gridY][gridX].path[UP] == true)
+                ball1.curr_y+=10;
             break;
         case GLUT_KEY_DOWN:
-            if (ball1.curr_y-10 >= 12)
-            ball1.curr_y-=10;
+            // if (ball1.curr_y-10 >= 12)
+            if (grid[gridY][gridX].path[DOWN] == true)
+                ball1.curr_y-=10;
             break;
     }
 
