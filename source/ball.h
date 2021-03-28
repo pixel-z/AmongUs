@@ -17,8 +17,6 @@ public:
     void draw(float x, float y);
     void drawRectangle(float x, float y, float width, float height);
     void drawSemiCircle(float cx, float cy, float r, int num_segments);
-private:
-    VAO *object;
 };
 
 #endif // BALL_H

@@ -1,2 +1,6 @@
-# Hello-World
-Repository with code for students to test their OpenGL installation. 
+# Among Us
+
+- For maze generation, recursive backtracking is used.
+
+Press __enter__ to generate maze. 
+Press __q__ to quit.
