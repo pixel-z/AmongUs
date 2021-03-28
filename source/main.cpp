@@ -18,6 +18,7 @@ const int width=8, height=8;
 int startGame = 0;
 Ball ball1;
 Grid grid[height][width];
+Button task1;
 
 void removeLine(int x, int y, int direction){
     // cout<<x<<" "<<y<<" "<<direction<<endl;
@@ -230,7 +231,11 @@ void display ()
 
     draw_grid();
 
-    if (startGame==1) draw_maze();
+    if (startGame==1) 
+    {
+        draw_maze();
+        task1.draw(2);
+    }
     glFlush();
 }
 
@@ -304,6 +309,10 @@ int main(int argc, char **argv) {
     cout<<"Height of grid: "<< height<<"\n";
 
     choose_start();
+    task1.curr_x = (rand() % 8)*10+15;
+    task1.curr_y = (rand() % 8)*10+15;
+    ball1.curr_x = (rand() % 8)*10+12;
+    ball1.curr_y = (rand() % 8)*10+12;
 
     glutInit( &argc, argv );
     glutInitDisplayMode( GLUT_SINGLE | GLUT_RGB );

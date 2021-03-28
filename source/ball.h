@@ -19,4 +19,12 @@ public:
     void drawSemiCircle(float cx, float cy, float r, int num_segments);
 };
 
+class Button {
+    public:
+        int curr_x;
+        int curr_y;
+    
+        void draw(float r);
+};
+
 #endif // BALL_H

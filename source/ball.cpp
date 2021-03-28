@@ -11,7 +11,7 @@ void Ball::drawSemiCircle(float cx, float cy, float r, int num_segments)
         float x = r * cosf(theta);//calculate the x component
         float y = r * sinf(theta);//calculate the y component
 
-        glColor3f(1,1,0);
+        glColor3f(0,1,0);
         glVertex2f(x + cx, y + cy);//output vertex
     }
     glEnd();
@@ -21,14 +21,17 @@ void Ball::drawSemiCircle(float cx, float cy, float r, int num_segments)
 void Ball::drawRectangle(float x, float y, float width, float height)
 {
     // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glBegin(GL_QUADS);
-    glColor3d(1,1,0);
+    glColor3f(0,1,0);
+
+    // glColor3d(1,1,0);
     glVertex2f(x,y);
-    glColor3d(1,1,0);
+    // glColor3d(1,1,0);
     glVertex2f(x+width,y);
-    glColor3d(1,1,0);
+    // glColor3d(1,1,0);
     glVertex2f(x+width,y+height);
-    glColor3d(1,1,0);
+    // glColor3d(1,1,0);
     glVertex2f(x,y+height);
     glEnd();
     // glutSwapBuffers();
@@ -41,3 +44,21 @@ void Ball::draw(float x, float y){
     drawRectangle(x+1.5, y+4.5, 3, 1.5);
 }
 
+void Button::draw(float r){
+    int num_segments = 20;
+    float cx = this->curr_x;
+    float cy = this->curr_y;
+
+    glBegin(GL_TRIANGLE_FAN);
+    for(int ii = 0; ii <= num_segments; ii++)
+    {
+        float theta = 2* 3.1415926f * float(ii) / float(num_segments);//get the current angle
+
+        float x = r * cosf(theta);//calculate the x component
+        float y = r * sinf(theta);//calculate the y component
+
+        glColor3f(0.6,0,0.4);
+        glVertex2f(x + cx, y + cy);//output vertex
+    }
+    glEnd();    
+}
