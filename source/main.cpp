@@ -21,6 +21,7 @@ Grid grid[height][width];
 Button task2;
 Obstacles obs[4];
 int SCORE = 0;
+int exitX, exitY, exitDirection;
 
 void removeLine(int x, int y, int direction){
     // cout<<x<<" "<<y<<" "<<direction<<endl;
@@ -118,6 +119,9 @@ void draw_maze()
         }
     }
     
+    // making exit
+    removeLine(exitX,exitY,exitDirection);
+
     // remove lines of grid where there is path
     for (int y = 0; y < height; y++)
     {
@@ -399,6 +403,33 @@ void choose_start()
     int initialX = rand()%(width);
     int initialY = rand()%(height);
     dfs(initialX, initialY);
+
+    // exit position
+    int ran = rand() % 8;
+    if(ran/2 == 0){
+        if(ran%2==0) 
+        exitX = 0, exitY = height-1, exitDirection = UP;
+        else 
+        exitX = 0, exitY = height-1, exitDirection = LEFT;
+    }
+    else if (ran/2 == 1){
+        if(ran%2==0)
+        exitX = width-1, exitY = height-1, exitDirection = UP;
+        else 
+        exitX = width-1, exitY = height-1, exitDirection = RIGHT;
+    }
+    else if (ran/2 == 2){
+        if(ran%2==0)
+        exitX = 0, exitY = 0, exitDirection = LEFT;
+        else
+        exitX = 0, exitY = 0, exitDirection = DOWN;
+    }
+    else{
+        if(ran%2==0)
+        exitX = width-1, exitY = 0, exitDirection = RIGHT;
+        else
+        exitX = width-1, exitY = 0, exitDirection = DOWN;
+    }
 }
 
 void init ()
