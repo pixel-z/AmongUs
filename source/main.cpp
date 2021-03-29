@@ -71,6 +71,53 @@ void draw_grid()
 
 void draw_maze()
 {
+    // below loop is just to remove some lines from grid & make maze more open
+    for (int y = 1; y < height-1; y++)
+    {
+        for (int x = 1; x < width-1; x++)
+        {
+            int c=0;
+            for (int i = 0; i < 4; i++)
+                if (grid[y][x].path[i] == false)
+                    c++;
+
+            if (c == 3)
+            {
+                int ran = rand() % 3;
+                if (ran == 0){
+                    if(grid[y][x].path[UP] == false){
+                        grid[y][x].path[UP] = true;
+                        grid[y+1][x].path[DOWN] = true;
+                    }
+                    else{
+                        grid[y][x].path[DOWN] = true;
+                        grid[y-1][x].path[UP] = true;
+                    }
+                }
+                else if (ran == 1){
+                    if(grid[y][x].path[DOWN] == false){
+                        grid[y][x].path[DOWN] = true;
+                        grid[y-1][x].path[UP] = true;
+                    }
+                    else{
+                        grid[y][x].path[RIGHT] = true;
+                        grid[y][x+1].path[LEFT] = true;
+                    }
+                }
+                else if (ran == 2){
+                    if(grid[y][x].path[RIGHT] == false){
+                        grid[y][x].path[RIGHT] = true;
+                        grid[y][x+1].path[LEFT] = true;
+                    }
+                    else{
+                        grid[y][x].path[LEFT] = true;
+                        grid[y][x-1].path[RIGHT] = true;
+                    }
+                }
+            }
+        }
+    }
+    
     // remove lines of grid where there is path
     for (int y = 0; y < height; y++)
     {
