@@ -62,3 +62,73 @@ void Button::draw(float r){
     }
     glEnd();    
 }
+
+void Obstacles::draw(int sign){
+    // sign = 0 : obstacle
+    // sign = 1 : powerup
+    this->sign = sign;
+    if (sign==1)
+    {
+        int num_segments = 20;
+        float cx = this->curr_x;
+        float cy = this->curr_y;
+        float r = 2;
+
+        glBegin(GL_TRIANGLE_FAN);
+        for(int ii = 0; ii <= num_segments; ii++)
+        {
+            float theta = 2* 3.1415926f * float(ii) / float(num_segments);
+
+            float x = r * cosf(theta);
+            float y = r * sinf(theta);
+
+            glColor3f(1.0,1,0.0);
+            glVertex2f(x + cx, y + cy);
+        }
+
+        r=1;
+        for(int ii = 0; ii <= num_segments; ii++)
+        {
+            float theta = 2* 3.1415926f * float(ii) / float(num_segments);
+
+            float x = r * cosf(theta);
+            float y = r * sinf(theta);
+
+            glColor3f(0.0,0,0.0);
+            glVertex2f(x + cx, y + cy);
+        }
+        glEnd();
+    }
+    else
+    {
+        int num_segments = 20;
+        float cx = this->curr_x;
+        float cy = this->curr_y;
+        float r = 2;
+
+        glBegin(GL_TRIANGLE_FAN);
+        for(int ii = 0; ii <= num_segments; ii++)
+        {
+            float theta = 2* 3.1415926f * float(ii) / float(num_segments);
+
+            float x = r * cosf(theta);
+            float y = r * sinf(theta);
+
+            glColor3f(220/255,220/255,220/255);
+            glVertex2f(x + cx, y + cy);
+        }
+
+        r=0.5;
+        for(int ii = 0; ii <= num_segments; ii++)
+        {
+            float theta = 2* 3.1415926f * float(ii) / float(num_segments);
+
+            float x = r * cosf(theta);
+            float y = r * sinf(theta);
+
+            glColor3f(0.7,0,0.0);
+            glVertex2f(x + cx, y + cy);
+        }
+        glEnd();
+    }
+}

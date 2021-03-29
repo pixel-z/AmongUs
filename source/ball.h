@@ -8,9 +8,11 @@ class Ball {
 public:
     int curr_x;
     int curr_y;
+    int health;
 
     // constructor
     Ball() {
+        health = 5;
         curr_x = 12;
         curr_y = 12;
     }
@@ -30,6 +32,20 @@ class Button {
         }
     
         void draw(float r);
+};
+
+class Obstacles {
+    public:
+        int curr_x;
+        int curr_y;
+        int finish;
+        int sign;
+
+        Obstacles() {
+            finish = 0;
+        }
+
+        void draw(int sign);
 };
 
 #endif // BALL_H

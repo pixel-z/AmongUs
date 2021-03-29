@@ -19,6 +19,8 @@ int startGame = 0;
 Ball ball1;
 Grid grid[height][width];
 Button task2;
+Obstacles obs[4];
+int SCORE = 0;
 
 void removeLine(int x, int y, int direction){
     // cout<<x<<" "<<y<<" "<<direction<<endl;
@@ -190,20 +192,52 @@ void dfs(int x,int y)
 
 void HUD()
 {
-    if (task2.finish == 0) glColor4f(1.0f, 0.0f, 0.0f, 0.0f);  //RGBA values of text color
-    else glColor4f(0.0f, 1.0f, 0.0f, 0.0f);  //RGBA values of text color
+    // Score
+    glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
+    glRasterPos2i(10, 100);     //Top left corner of text
+    string str = "Score: " + to_string(SCORE);
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)str.c_str()); // 2nd argument must be const unsigned char*
     
-    glRasterPos2i(10, 95);            //Top left corner of text
-    const unsigned char* t = reinterpret_cast<const unsigned char *>("Task 2"); // Since 2nd argument of glutBitmapString must be const unsigned char*
-    glutBitmapString(GLUT_BITMAP_HELVETICA_18,t);
+    // Health
+    glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
+    glRasterPos2i(80, 95);     //Top left corner of text
+    string health = "Health: " + to_string(ball1.health);
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)health.c_str()); // 2nd argument must be const unsigned char*
+    
+    // Task2
+    if (task2.finish == 0) glColor4f(0.6f,0.0f,0.4f, 0.0f);
+    else glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
+    glRasterPos2i(10, 95);
+    string t2 = "Task2";
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18,(const unsigned char *)t2.c_str());
 }
 
 void collision()
 {
     // cout<<ball1.curr_x<<" "<<task2.curr_x<<"\n";
-    if (ball1.curr_x+3 == task2.curr_x && ball1.curr_y+3 == task2.curr_y)
+    if (task2.finish == 0 && ball1.curr_x+3 == task2.curr_x && ball1.curr_y+3 == task2.curr_y)
     {
         task2.finish = 1;
+            for (int i = 0; i < 4; i++)
+            {
+                obs[i].curr_x = (rand() % 8)*10+15;
+                obs[i].curr_y = (rand() % 8)*10+15;
+            }
+    }
+    if(task2.finish == 1)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (obs[i].finish == 0 && ball1.curr_x+3 == obs[i].curr_x && ball1.curr_y+3 == obs[i].curr_y)
+            {
+                obs[i].finish = 1;
+                if(obs[i].sign == 1) SCORE += 100;
+                else {
+                    SCORE -= 50;
+                    ball1.health--;
+                }
+            }   
+        }
     }
 }
 
@@ -251,12 +285,19 @@ void display ()
         glutBitmapString(GLUT_BITMAP_HELVETICA_18,t);
     }
     
-
     if (startGame==1) 
     {
         draw_maze();
         if(task2.finish == 0) task2.draw(2);
+        else
+        {
+            for (int i = 0; i < 2; i++)
+                if(obs[i].finish==0) obs[i].draw(1);
+            for (int i = 2; i < 4; i++)
+                if(obs[i].finish==0) obs[i].draw(0);
+        }
     }
+    
     glFlush();
 }
 
