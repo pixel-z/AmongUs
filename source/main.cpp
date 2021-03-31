@@ -16,12 +16,14 @@ double camera_rotation_angle = 30;
 // Dimensions of the maze
 const int width=8, height=8;
 int startGame = 0;
-Ball ball1;
+Ball ball1, imposter;
 Grid grid[height][width];
-Button task2;
+Button task1, task2;
 Obstacles obs[4];
 int SCORE = 0;
 int exitX, exitY, exitDirection;
+time_t START;
+int TIMER = 30;
 
 void removeLine(int x, int y, int direction){
     // cout<<x<<" "<<y<<" "<<direction<<endl;
@@ -245,16 +247,31 @@ void HUD()
 {
     // Score
     glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
-    glRasterPos2i(10, 100);     //Top left corner of text
+    glRasterPos2i(10, 105);     //Top left corner of text
     string str = "Score: " + to_string(SCORE);
     glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)str.c_str()); // 2nd argument must be const unsigned char*
     
     // Health
     glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
-    glRasterPos2i(80, 95);     //Top left corner of text
+    glRasterPos2i(80, 95);
     string health = "Health: " + to_string(ball1.health);
-    glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)health.c_str()); // 2nd argument must be const unsigned char*
-    
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)health.c_str());
+
+    // Timer
+    glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
+    glRasterPos2i(80, 100);
+    TIMER = TIMER-((time(NULL)-START)%60);
+    START = time(NULL);
+    string timer = "Time: " + to_string(TIMER);
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)timer.c_str());
+
+    // Task1
+    if (task1.finish == 0) glColor4f(0.0f, 1, 1, 0.0f);
+    else glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
+    glRasterPos2i(10, 100);
+    string t1 = "Task1";
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18,(const unsigned char *)t1.c_str());
+
     // Task2
     if (task2.finish == 0) glColor4f(0.6f,0.0f,0.4f, 0.0f);
     else glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
@@ -265,6 +282,9 @@ void HUD()
 
 void collision()
 {
+    if (task1.finish == 0 && ball1.curr_x+3 == task1.curr_x && ball1.curr_y+3 == task1.curr_y)
+        task1.finish = 1;
+
     // cout<<ball1.curr_x<<" "<<task2.curr_x<<"\n";
     if (task2.finish == 0 && ball1.curr_x+3 == task2.curr_x && ball1.curr_y+3 == task2.curr_y)
     {
@@ -324,7 +344,7 @@ void display ()
 
     collision();
 
-    ball1.draw(ball1.curr_x,ball1.curr_y);
+    ball1.draw(ball1.curr_x,ball1.curr_y, 0);
     // ball1.draw(12,12);
 
     draw_grid();
@@ -339,7 +359,11 @@ void display ()
     if (startGame==1) 
     {
         draw_maze();
-        if(task2.finish == 0) task2.draw(2);
+        if(task1.finish == 0) task1.draw(2, 1);
+        else {
+            imposter.draw(imposter.curr_x, imposter.curr_y, 1);
+        }
+        if(task2.finish == 0) task2.draw(2, 2);
         else
         {
             for (int i = 0; i < 2; i++)
@@ -360,6 +384,9 @@ void key (unsigned char key, int x, int y)
             break;
         case 13:
             startGame = 1;
+            START = time(NULL);
+            cout<<START<<endl;
+            cout<<TIMER<<endl;
             break;
     }
     display();
@@ -396,6 +423,25 @@ void movement (int key, int x, int y )
 
     display();
 }
+
+// void idle(){
+//     int ViewportX = 500, ViewportY = 625, ViewportWidth = 600, ViewportHeight = 25;
+//     glEnable (GL_SCISSOR_TEST);
+//     glScissor (ViewportX, ViewportY, ViewportWidth, ViewportHeight);
+//     glClearColor( 0, 0, 0, 0.0 );
+//     glClear( GL_COLOR_BUFFER_BIT );
+
+//     // Timer
+//     glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
+//     glRasterPos2i(80, 100);
+//     TIMER = TIMER-((time(NULL)-START)%60);
+//     START = time(NULL);
+//     string timer = "Time: " + to_string(TIMER);
+//     glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)timer.c_str());
+    
+//     glFlush();
+//     glDisable (GL_SCISSOR_TEST);
+// }
 
 // sets initial start of character
 void choose_start()
@@ -449,10 +495,14 @@ int main(int argc, char **argv) {
     cout<<"Height of grid: "<< height<<"\n";
 
     choose_start();
+    task1.curr_x = (rand() % 8)*10+15;
+    task1.curr_y = (rand() % 8)*10+15;
     task2.curr_x = (rand() % 8)*10+15;
     task2.curr_y = (rand() % 8)*10+15;
     ball1.curr_x = (rand() % 8)*10+12;
     ball1.curr_y = (rand() % 8)*10+12;
+    imposter.curr_x = (rand() % 8)*10+12;
+    imposter.curr_y = (rand() % 8)*10+12;
 
     glutInit( &argc, argv );
     glutInitDisplayMode( GLUT_SINGLE | GLUT_RGB );
@@ -465,7 +515,10 @@ int main(int argc, char **argv) {
     glutDisplayFunc(display);   // glutDisplayFunc whenever your window must be redrawn
     glutKeyboardFunc(key);
     glutSpecialFunc(movement);
+    // glutIdleFunc(idle);
     glutMainLoop(); // glutMainLoop calls your glutDisplayFunc callback over and over
+    //This statement blocks, meaning that until you exit the 
+    // glut main loop no statments past this point will be executed.
 }
 
 void reset_screen() {

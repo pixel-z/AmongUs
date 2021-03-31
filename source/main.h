@@ -5,6 +5,8 @@
 #include <cmath>
 #include <fstream>
 #include <vector>
+#include <time.h>
+#include <unistd.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

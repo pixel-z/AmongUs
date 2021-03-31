@@ -1,7 +1,7 @@
 #include "ball.h"
 #include "main.h"
 
-void Ball::drawSemiCircle(float cx, float cy, float r, int num_segments)
+void Ball::drawSemiCircle(float cx, float cy, float r, int num_segments, int ball_no)
 {
     glBegin(GL_LINE_LOOP);
     for(int ii = 0; ii <= num_segments; ii++)
@@ -11,19 +11,25 @@ void Ball::drawSemiCircle(float cx, float cy, float r, int num_segments)
         float x = r * cosf(theta);//calculate the x component
         float y = r * sinf(theta);//calculate the y component
 
-        glColor3f(0,1,0);
+        if(ball_no == 1)    // imposter
+            glColor3f(1,0,0);
+        else
+            glColor3f(0,1,0);
         glVertex2f(x + cx, y + cy);//output vertex
     }
     glEnd();
 }
 
 // x & y of bottom left corner
-void Ball::drawRectangle(float x, float y, float width, float height)
+void Ball::drawRectangle(float x, float y, float width, float height, int ball_no)
 {
     // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBegin(GL_QUADS);
-    glColor3f(0,1,0);
+    if(ball_no == 1)    // imposter
+        glColor3f(1,0,0);
+    else
+        glColor3f(0,1,0);
 
     // glColor3d(1,1,0);
     glVertex2f(x,y);
@@ -38,13 +44,13 @@ void Ball::drawRectangle(float x, float y, float width, float height)
 }
 
 // x & y of bottom left corner
-void Ball::draw(float x, float y){
-    drawSemiCircle(x+3, y+3.5, 3, 20);
-    drawRectangle(x, y, 6, 4);
-    drawRectangle(x+1.5, y+4.5, 3, 1.5);
+void Ball::draw(float x, float y, int ball_no){
+    drawSemiCircle(x+3, y+3.5, 3, 20, ball_no);
+    drawRectangle(x, y, 6, 4, ball_no);
+    drawRectangle(x+1.5, y+4.5, 3, 1.5, ball_no);
 }
 
-void Button::draw(float r){
+void Button::draw(float r, int task_no){
     int num_segments = 20;
     float cx = this->curr_x;
     float cy = this->curr_y;
@@ -56,8 +62,12 @@ void Button::draw(float r){
 
         float x = r * cosf(theta);//calculate the x component
         float y = r * sinf(theta);//calculate the y component
+        
+        if(task_no == 2)
+            glColor3f(0.6,0,0.4);
+        else
+            glColor3f(0,1,1);
 
-        glColor3f(0.6,0,0.4);
         glVertex2f(x + cx, y + cy);//output vertex
     }
     glEnd();    
