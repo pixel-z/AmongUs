@@ -25,6 +25,109 @@ int exitX, exitY, exitDirection;
 time_t START;
 int TIMER = 30;
 
+vector<int> adj[width*height];
+
+// make adjacency list
+void create_graph() {
+    for (int i = 0; i < height*width; i++)
+    {
+        int x = i%width, y = i/height;
+        if (x-1>0 && grid[y][x].path[LEFT] == true)
+            adj[i].push_back(i-1);
+        if(x+1<width && grid[y][x].path[RIGHT] == true)
+            adj[i].push_back(i+1);
+        if(y-1>0 && grid[y][x].path[DOWN] == true)
+            adj[i].push_back(i-width);
+        if(y+1<height && grid[y][x].path[UP] == true)
+            adj[i].push_back(i+width);
+    }
+}
+
+// start = imposter posi, dest = player posi
+int bfs(int start, int dest)
+{
+    int INF = 1000000;
+    queue<int>Q;
+    vector<int> dist(width*height,INF);
+    int vis[width*height]={0}, parent[width*height];
+
+    for (int child = 0; child < adj[start].size(); child++)
+    {
+        Q.push(adj[start][child]);
+        vis[adj[start][child]] = 1;
+        dist[adj[start][child]] = 1;
+        parent[adj[start][child]] = adj[start][child];
+    }
+    
+    while (!Q.empty())
+    {
+        int top = Q.front();
+        Q.pop();
+
+        for (int child = 0; child < adj[top].size(); child++)
+        {
+            if(vis[adj[top][child]] == 0) 
+            {
+                Q.push(adj[top][child]);
+                vis[adj[top][child]] = 1;
+                if (dist[adj[top][child]] > dist[top] + 1)
+                {
+                    dist[adj[top][child]] = dist[top] + 1;
+                    parent[adj[top][child]] = parent[top];
+                }
+            }
+        }
+    }
+    return parent[dest];
+}
+
+
+void gameOver(int state)
+{
+    // win
+    if (state==1)
+    {
+        glClearColor(0,1,0,0);
+        glClear( GL_COLOR_BUFFER_BIT );
+        glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+        glRasterPos2i(40, 50);
+        string str = "You Win!!";
+        glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)str.c_str());
+    }
+    // when q pressed = gameover
+    else if (state==0)
+    {
+        glClearColor(0,0,0,0);
+        glClear( GL_COLOR_BUFFER_BIT );
+        glColor4f(0.0f, 0.0f, 1.0f, 0.0f);
+        glRasterPos2i(40, 50);
+        string str = "Game Over \n You Quit :(";
+        glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)str.c_str());
+    }
+    // lose
+    else 
+    {
+        glClearColor(0,0,0,0);
+        glClear( GL_COLOR_BUFFER_BIT );
+        glColor4f(1, 0.0f, 0.0f, 1.0f);
+        glRasterPos2i(40, 50);
+        string str = "You Lose";
+        glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)str.c_str());
+    }
+    
+    // Score
+    glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
+    glRasterPos2i(40, 40);     //Top left corner of text
+    string s = "Score: " + to_string(SCORE);
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)s.c_str()); // 2nd argument must be const unsigned char*
+
+    glFlush();
+    
+    sleep(1);
+    exit(0);
+    return;
+}
+
 void removeLine(int x, int y, int direction){
     // cout<<x<<" "<<y<<" "<<direction<<endl;
     glColor3f( 0.0, 0.0, 0.0 );
@@ -380,13 +483,12 @@ void key (unsigned char key, int x, int y)
 {
     switch (key) {
         case 'q':
-            exit(0);
+            gameOver(0);
             break;
         case 13:
             startGame = 1;
             START = time(NULL);
-            cout<<START<<endl;
-            cout<<TIMER<<endl;
+            create_graph();
             break;
     }
     display();
@@ -400,23 +502,27 @@ void movement (int key, int x, int y )
     if (startGame == 0) return;
     switch (key) {
         case GLUT_KEY_RIGHT:
-            // if (ball1.curr_x+10 < 12+10*width)
-            if (grid[gridY][gridX].path[RIGHT] == true)
+            if (task1.finish==1 && task2.finish==1 && exitX==gridX && exitY==gridY && exitDirection==RIGHT)
+                gameOver(1);
+            else if (grid[gridY][gridX].path[RIGHT] == true)
                 ball1.curr_x+=10;
             break;
         case GLUT_KEY_LEFT:
-            // if (ball1.curr_x-10 >= 12)
-            if (grid[gridY][gridX].path[LEFT] == true)
+            if (task1.finish==1 && task2.finish==1 && exitX==gridX && exitY==gridY && exitDirection==LEFT)
+                gameOver(1);
+            else if (grid[gridY][gridX].path[LEFT] == true)
                 ball1.curr_x-=10;
             break;
         case GLUT_KEY_UP:
-            // if (ball1.curr_y+10 < 12+10*height)
-            if (grid[gridY][gridX].path[UP] == true)
+            if (task1.finish==1 && task2.finish==1 && exitX==gridX && exitY==gridY && exitDirection==UP)
+                gameOver(1);
+            else if (grid[gridY][gridX].path[UP] == true)
                 ball1.curr_y+=10;
             break;
         case GLUT_KEY_DOWN:
-            // if (ball1.curr_y-10 >= 12)
-            if (grid[gridY][gridX].path[DOWN] == true)
+            if (task1.finish==1 && task2.finish==1 && exitX==gridX && exitY==gridY && exitDirection==DOWN)
+                gameOver(1);
+            else if (grid[gridY][gridX].path[DOWN] == true)
                 ball1.curr_y-=10;
             break;
     }
@@ -441,6 +547,12 @@ void movement (int key, int x, int y )
     
 //     glFlush();
 //     glDisable (GL_SCISSOR_TEST);
+// }
+
+// executes after certain interval
+// void timerFunc(int value)
+// {
+    
 // }
 
 // sets initial start of character
@@ -516,6 +628,7 @@ int main(int argc, char **argv) {
     glutKeyboardFunc(key);
     glutSpecialFunc(movement);
     // glutIdleFunc(idle);
+    // glutTimerFunc(1000, timerFunc, );
     glutMainLoop(); // glutMainLoop calls your glutDisplayFunc callback over and over
     //This statement blocks, meaning that until you exit the 
     // glut main loop no statments past this point will be executed.
