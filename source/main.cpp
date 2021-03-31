@@ -25,22 +25,31 @@ int exitX, exitY, exitDirection;
 time_t START;
 int TIMER = 30;
 
-vector<int> adj[width*height];
+vector<int> adj[width*height+1];
 
 // make adjacency list
 void create_graph() {
     for (int i = 0; i < height*width; i++)
     {
-        int x = i%width, y = i/height;
-        if (x-1>0 && grid[y][x].path[LEFT] == true)
+        int x = i%width, y = i/width;
+        if (x-1>=0 && grid[y][x].path[LEFT] == true)
             adj[i].push_back(i-1);
         if(x+1<width && grid[y][x].path[RIGHT] == true)
             adj[i].push_back(i+1);
-        if(y-1>0 && grid[y][x].path[DOWN] == true)
+        if(y-1>=0 && grid[y][x].path[DOWN] == true)
             adj[i].push_back(i-width);
         if(y+1<height && grid[y][x].path[UP] == true)
             adj[i].push_back(i+width);
     }
+
+    // for (int i = 0; i < height*width; i++)
+    // {
+    //     for (int j = 0; j < adj[i].size(); j++)
+    //     {
+    //         cout<<i%width<<","<<i/width<<"<->"<<adj[i][j]%width<<","<<adj[i][j]/width<<endl;
+    //     }
+    //     cout<<endl;
+    // }
 }
 
 // start = imposter posi, dest = player posi
@@ -80,7 +89,6 @@ int bfs(int start, int dest)
     }
     return parent[dest];
 }
-
 
 void gameOver(int state)
 {
@@ -177,56 +185,6 @@ void draw_grid()
 
 void draw_maze()
 {
-    // below loop is just to remove some lines from grid & make maze more open
-    for (int y = 1; y < height-1; y++)
-    {
-        for (int x = 1; x < width-1; x++)
-        {
-            int c=0;
-            for (int i = 0; i < 4; i++)
-                if (grid[y][x].path[i] == false)
-                    c++;
-
-            if (c == 3)
-            {
-                int ran = rand() % 3;
-                if (ran == 0){
-                    if(grid[y][x].path[UP] == false){
-                        grid[y][x].path[UP] = true;
-                        grid[y+1][x].path[DOWN] = true;
-                    }
-                    else{
-                        grid[y][x].path[DOWN] = true;
-                        grid[y-1][x].path[UP] = true;
-                    }
-                }
-                else if (ran == 1){
-                    if(grid[y][x].path[DOWN] == false){
-                        grid[y][x].path[DOWN] = true;
-                        grid[y-1][x].path[UP] = true;
-                    }
-                    else{
-                        grid[y][x].path[RIGHT] = true;
-                        grid[y][x+1].path[LEFT] = true;
-                    }
-                }
-                else if (ran == 2){
-                    if(grid[y][x].path[RIGHT] == false){
-                        grid[y][x].path[RIGHT] = true;
-                        grid[y][x+1].path[LEFT] = true;
-                    }
-                    else{
-                        grid[y][x].path[LEFT] = true;
-                        grid[y][x-1].path[RIGHT] = true;
-                    }
-                }
-            }
-        }
-    }
-    
-    // making exit
-    removeLine(exitX,exitY,exitDirection);
-
     // remove lines of grid where there is path
     for (int y = 0; y < height; y++)
     {
@@ -363,8 +321,6 @@ void HUD()
     // Timer
     glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
     glRasterPos2i(80, 100);
-    TIMER = TIMER-((time(NULL)-START)%60);
-    START = time(NULL);
     string timer = "Time: " + to_string(TIMER);
     glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)timer.c_str());
 
@@ -462,8 +418,9 @@ void display ()
     if (startGame==1) 
     {
         draw_maze();
-        if(task1.finish == 0) task1.draw(2, 1);
-        else {
+        if(task1.finish == 0)
+        {
+            task1.draw(2, 1);
             imposter.draw(imposter.curr_x, imposter.curr_y, 1);
         }
         if(task2.finish == 0) task2.draw(2, 2);
@@ -502,26 +459,34 @@ void movement (int key, int x, int y )
     if (startGame == 0) return;
     switch (key) {
         case GLUT_KEY_RIGHT:
-            if (task1.finish==1 && task2.finish==1 && exitX==gridX && exitY==gridY && exitDirection==RIGHT)
+            if (exitX==gridX && exitY==gridY && exitDirection==RIGHT) {
+                if(task1.finish==1 && task2.finish==1)
                 gameOver(1);
+            }
             else if (grid[gridY][gridX].path[RIGHT] == true)
                 ball1.curr_x+=10;
             break;
         case GLUT_KEY_LEFT:
-            if (task1.finish==1 && task2.finish==1 && exitX==gridX && exitY==gridY && exitDirection==LEFT)
+            if (exitX==gridX && exitY==gridY && exitDirection==LEFT) {
+                if(task1.finish==1 && task2.finish==1)
                 gameOver(1);
+            }
             else if (grid[gridY][gridX].path[LEFT] == true)
                 ball1.curr_x-=10;
             break;
         case GLUT_KEY_UP:
-            if (task1.finish==1 && task2.finish==1 && exitX==gridX && exitY==gridY && exitDirection==UP)
+            if (exitX==gridX && exitY==gridY && exitDirection==UP) {
+                if(task1.finish==1 && task2.finish==1)
                 gameOver(1);
+            }
             else if (grid[gridY][gridX].path[UP] == true)
                 ball1.curr_y+=10;
             break;
         case GLUT_KEY_DOWN:
-            if (task1.finish==1 && task2.finish==1 && exitX==gridX && exitY==gridY && exitDirection==DOWN)
+            if (exitX==gridX && exitY==gridY && exitDirection==DOWN) {
+                if(task1.finish==1 && task2.finish==1)
                 gameOver(1);
+            }
             else if (grid[gridY][gridX].path[DOWN] == true)
                 ball1.curr_y-=10;
             break;
@@ -549,11 +514,31 @@ void movement (int key, int x, int y )
 //     glDisable (GL_SCISSOR_TEST);
 // }
 
+void imposterMovement()
+{
+    int startX = (imposter.curr_x-12)/10, startY = (imposter.curr_y-12)/10;
+    int start = width*startY + startX;
+
+    int endX = (ball1.curr_x-12)/10, endY = (ball1.curr_y-12)/10;
+    int end = width*endY + endX;
+
+    int position = bfs(start, end);
+
+    // cout<<start<<"->"<<end<<" "<<position<<endl;
+
+    imposter.curr_x = (position%width)*10+12;
+    imposter.curr_y = (position/width)*10+12;
+}
+
 // executes after certain interval
-// void timerFunc(int value)
-// {
-    
-// }
+void timerFunc(int value)
+{
+    TIMER--;
+    if(task1.finish==0)
+        imposterMovement();
+    glutPostRedisplay();
+    glutTimerFunc(1000.0, timerFunc, 0);
+}
 
 // sets initial start of character
 void choose_start()
@@ -587,6 +572,56 @@ void choose_start()
         exitX = width-1, exitY = 0, exitDirection = RIGHT;
         else
         exitX = width-1, exitY = 0, exitDirection = DOWN;
+    }
+
+    // making exit
+    grid[exitY][exitX].path[exitDirection] = true;
+
+    // below loop is just to remove some lines from grid & make maze more open
+    for (int y = 1; y < height-1; y++)
+    {
+        for (int x = 1; x < width-1; x++)
+        {
+            int c=0;
+            for (int i = 0; i < 4; i++)
+                if (grid[y][x].path[i] == false)
+                    c++;
+
+            if (c == 3)
+            {
+                int ran = rand() % 3;
+                if (ran == 0){
+                    if(grid[y][x].path[UP] == false){
+                        grid[y][x].path[UP] = true;
+                        grid[y+1][x].path[DOWN] = true;
+                    }
+                    else{
+                        grid[y][x].path[DOWN] = true;
+                        grid[y-1][x].path[UP] = true;
+                    }
+                }
+                else if (ran == 1){
+                    if(grid[y][x].path[DOWN] == false){
+                        grid[y][x].path[DOWN] = true;
+                        grid[y-1][x].path[UP] = true;
+                    }
+                    else{
+                        grid[y][x].path[RIGHT] = true;
+                        grid[y][x+1].path[LEFT] = true;
+                    }
+                }
+                else if (ran == 2){
+                    if(grid[y][x].path[RIGHT] == false){
+                        grid[y][x].path[RIGHT] = true;
+                        grid[y][x+1].path[LEFT] = true;
+                    }
+                    else{
+                        grid[y][x].path[LEFT] = true;
+                        grid[y][x-1].path[RIGHT] = true;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -628,7 +663,7 @@ int main(int argc, char **argv) {
     glutKeyboardFunc(key);
     glutSpecialFunc(movement);
     // glutIdleFunc(idle);
-    // glutTimerFunc(1000, timerFunc, );
+    glutTimerFunc(1000.0, timerFunc, 0);
     glutMainLoop(); // glutMainLoop calls your glutDisplayFunc callback over and over
     //This statement blocks, meaning that until you exit the 
     // glut main loop no statments past this point will be executed.
