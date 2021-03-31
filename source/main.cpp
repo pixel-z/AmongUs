@@ -22,8 +22,8 @@ Button task1, task2;
 Obstacles obs[4];
 int SCORE = 0;
 int exitX, exitY, exitDirection;
-time_t START;
 int TIMER = 30;
+string LIGHT = "ON";
 
 vector<int> adj[width*height+1];
 
@@ -115,6 +115,7 @@ void gameOver(int state)
     // lose
     else 
     {
+        ball1.health = 0;
         glClearColor(0,0,0,0);
         glClear( GL_COLOR_BUFFER_BIT );
         glColor4f(1, 0.0f, 0.0f, 1.0f);
@@ -124,7 +125,7 @@ void gameOver(int state)
     }
     
     // Score
-    glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
+    glColor4f(1.0f, 0.0f, 0.0f, 0.0f);
     glRasterPos2i(40, 40);     //Top left corner of text
     string s = "Score: " + to_string(SCORE);
     glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)s.c_str()); // 2nd argument must be const unsigned char*
@@ -337,10 +338,19 @@ void HUD()
     glRasterPos2i(10, 95);
     string t2 = "Task2";
     glutBitmapString(GLUT_BITMAP_HELVETICA_18,(const unsigned char *)t2.c_str());
+
+    // Lighting
+    glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
+    glRasterPos2i(80, 105);
+    string light = "Light: " + LIGHT;
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)light.c_str());
 }
 
 void collision()
 {
+    if (startGame == 1 && task1.finish==0 && imposter.curr_x == ball1.curr_x && imposter.curr_y == ball1.curr_y)
+        gameOver(-1);
+    
     if (task1.finish == 0 && ball1.curr_x+3 == task1.curr_x && ball1.curr_y+3 == task1.curr_y)
         task1.finish = 1;
 
@@ -444,7 +454,6 @@ void key (unsigned char key, int x, int y)
             break;
         case 13:
             startGame = 1;
-            START = time(NULL);
             create_graph();
             break;
     }
@@ -533,10 +542,15 @@ void imposterMovement()
 // executes after certain interval
 void timerFunc(int value)
 {
-    TIMER--;
-    if(task1.finish==0)
-        imposterMovement();
-    glutPostRedisplay();
+    if(startGame == 1)
+    {
+        TIMER--;
+        if(TIMER<=0)
+            gameOver(-1);
+        if(task1.finish==0)
+            imposterMovement();
+        glutPostRedisplay();
+    }
     glutTimerFunc(1000.0, timerFunc, 0);
 }
 
